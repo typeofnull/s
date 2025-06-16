@@ -250,6 +250,17 @@ function handleResize() {
   spineCanvas.height = h;
   spineCanvas.style.width = `${w}px`;
   spineCanvas.style.height = `${h}px`;
+
+  if (modelType === "live2d" && currentModel && currentModel.internalModel) {
+    const newScale = Math.min(
+      w / currentModel.internalModel.originalWidth,
+      h / currentModel.internalModel.originalHeight
+    );
+    currentModel.scale.set(newScale);
+    scale = newScale;
+    setScaleAdjustment(newScale);
+    currentModel.position.set(w * 0.5, h * 0.5);
+  }
 }
 
 function handleMouseOut() {
