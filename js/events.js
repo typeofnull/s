@@ -191,13 +191,38 @@ function exportImage() {
 
 function exportAnimation() {
   if (isRecording) return;
-  if (modelType === "spine") {
-    isRecording = true;
-    for (const animatinState of animationStates) {
-      animatinState.setAnimation(0, animationSelector.value, true);
-    }
-    startRecording();
+
+  // modelType is imported and should be available in this scope
+  // animationSelector.value is expected to provide the correct animation name format
+  const animationName = animationSelector.value;
+
+  if (!animationName) {
+    console.error("No animation selected.");
+    return;
   }
+
+  isRecording = true; // Set recording flag
+
+  // For Spine, ensure the animation is set on the model before recording
+  // For Live2D, the animation is typically already playing or will be started by startRecording if needed.
+  // The new export.js's startRecording for Live2D doesn't re-trigger the animation,
+  // it expects it to be playing or set. This is consistent with how Spine animations are set here.
+  if (modelType === "spine") {
+    if (animationStates && animationStates.length > 0) {
+      for (const animationState of animationStates) {
+        animationState.setAnimation(0, animationName, true);
+      }
+    } else {
+      console.error("Spine animation states not available.");
+      isRecording = false; // Reset flag
+      return;
+    }
+  }
+  // For Live2D, the animation should already be playing due to handleAnimationChange.
+  // If it needs to be explicitly started or its duration re-verified,
+  // that logic is now encapsulated within startRecording in export.js.
+
+  startRecording(modelType, animationName);
 }
 
 function focusBody() {
