@@ -259,7 +259,7 @@ function handleResize() {
     currentModel.scale.set(newScale);
     scale = newScale;
     setScaleAdjustment(newScale);
-    currentModel.position.set(w * 0.5, h * 0.5);
+    currentModel.position.set(w * 0.5 + moveX, h * 0.5 + moveY);
   }
 }
 
