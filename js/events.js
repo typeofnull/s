@@ -13,8 +13,8 @@ import { createSceneSelector, resetSettingUI } from "./ui.js";
 let scaleAdjustment = 1;
 const scaleInit = 1;
 const scaleMax = 8;
-const scaleMin = 1;
-const scaleStep = 0.2;
+const scaleMin = 0.5;
+const scaleStep = 0.1;
 const rotateStep = 0.001;
 export const moveStep = 0.001;
 export let scale = scaleInit;
@@ -161,6 +161,11 @@ function nextAnimation() {
   } else handleSpineAnimationChange(animationIndex);
 }
 
+function toggleDialog() {
+  const dialog = document.getElementById("dialog");
+  dialog.open ? dialog.close() : dialog.showModal();
+}
+
 function exportImage() {
   const activeCanvas = modelType === "live2d" ? live2dCanvas : spineCanvas;
   const screenshotCanvas = document.getElementById("screenshotCanvas");
@@ -191,13 +196,17 @@ function exportImage() {
 
 function exportAnimation() {
   if (isRecording) return;
+  isRecording = true;
+  let animationName;
   if (modelType === "spine") {
-    isRecording = true;
-    for (const animatinState of animationStates) {
-      animatinState.setAnimation(0, animationSelector.value, true);
+    animationName = animationSelector.value
+    for (const animationState of animationStates) {
+      animationState.setAnimation(0, animationName, true);
     }
-    startRecording();
+  } else if (modelType === "live2d") {
+    animationName = animationSelector.options[animationSelector.selectedIndex].textContent;
   }
+  startRecording(modelType, animationName);
 }
 
 function focusBody() {
@@ -230,6 +239,9 @@ function handleKeyboardInput(e) {
     case "x":
       nextAnimation();
       break;
+    case "e":
+      toggleDialog();
+      break;
     case "d":
       exportImage();
       break;
@@ -250,6 +262,16 @@ function handleResize() {
   spineCanvas.height = h;
   spineCanvas.style.width = `${w}px`;
   spineCanvas.style.height = `${h}px`;
+  if (modelType === "live2d" && currentModel && currentModel.internalModel) {
+    const newScale = Math.min(
+      w / currentModel.internalModel.originalWidth,
+      h / currentModel.internalModel.originalHeight
+    );
+    currentModel.scale.set(newScale);
+    scale = newScale;
+    setScaleAdjustment(newScale);
+    currentModel.position.set(w * 0.5 + moveX, h * 0.5 + moveY);
+  }
 }
 
 function handleMouseOut() {
@@ -354,7 +376,7 @@ function handleSceneChange(e) {
   _handleSceneChange();
 }
 
-function handleLive2DAnimationChange(motion, index) {
+export function handleLive2DAnimationChange(motion, index) {
   const motionManager = currentModel.internalModel.motionManager;
   motionManager.stopAllMotions();
   motionManager.startMotion(motion, Number(index), 1);
