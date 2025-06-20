@@ -1,5 +1,7 @@
 import {
+  animationSelector,
   dirSelector,
+  handleLive2DAnimationChange,
   sceneSelector,
   setRecordingFlag,
 } from "./events.js";
@@ -20,6 +22,9 @@ export async function startRecording(modelType, animationName) {
   let rec;
   if (modelType === "spine") {
     canvas = document.getElementById("spineCanvas");
+    for (const animationState of animationStates) {
+      animationState.tracks[0].trackTime = 0;
+    }
   } else if (modelType === "live2d") {
     canvas = document.getElementById("live2dCanvas");
     if (animationName.endsWith(".json")) {
@@ -28,6 +33,8 @@ export async function startRecording(modelType, animationName) {
       const jsonData = JSON.parse(content);
       live2dAnimationDuration = jsonData.Meta.Duration;
       recordingStartTime = performance.now();
+      const [motion, index] = animationSelector.value.split(",");
+      handleLive2DAnimationChange(motion, index);
     } else {
       setRecordingFlag(false);
       return;
@@ -47,11 +54,6 @@ export async function startRecording(modelType, animationName) {
   };
 
   rec.onstart = () => {
-    if (modelType === "spine") {
-      for (const animationState of animationStates) {
-        animationState.tracks[0].trackTime = 0;
-      }
-    }
     requestAnimationFrame(() => checkCondition(modelType, rec));
   };
 

@@ -11,7 +11,18 @@
 <body>
   <div id="spinner"></div>
   <dialog id="dialog" closedby="any" autofocus>
-    <p>Content</p>
+    <label for="windowWidth">Width:</label>
+    <input type="number" id="windowWidth" name="windowWidth">
+    <br>
+    <label for="windowHeight">Height:</label>
+    <input type="number" id="windowHeight" name="windowHeight">
+    <br>
+    <hr>
+    <label for="modelOriginalWidth">Model Original Width:</label>
+    <input type="text" id="modelOriginalWidth" name="modelOriginalWidth" readonly>
+    <br>
+    <label for="modelOriginalHeight">Model Original Height:</label>
+    <input type="text" id="modelOriginalHeight" name="modelOriginalHeight" readonly>
   </dialog>
   <div id="sidebar">
     <select id="dirSelector"></select>
