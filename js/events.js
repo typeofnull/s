@@ -199,10 +199,7 @@ function exportAnimation() {
   isRecording = true;
   let animationName;
   if (modelType === "spine") {
-    animationName = animationSelector.value
-    for (const animationState of animationStates) {
-      animationState.setAnimation(0, animationName, true);
-    }
+    animationName = animationSelector.value;
   } else if (modelType === "live2d") {
     animationName = animationSelector.options[animationSelector.selectedIndex].textContent;
   }
